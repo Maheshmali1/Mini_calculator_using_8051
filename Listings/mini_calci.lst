@@ -1,0 +1,267 @@
+C51 COMPILER V9.60.0.0   MINI_CALCI                                                        10/23/2021 17:00:02 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE MINI_CALCI
+OBJECT MODULE PLACED IN .\Objects\mini_calci.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE mini_calci.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listing
+                    -s\mini_calci.lst) TABS(2) OBJECT(.\Objects\mini_calci.obj)
+
+line level    source
+
+   1          #include<reg51.h>
+   2          #include<stdio.h>
+   3          
+   4          sfr lcd_port = 0xA0;
+   5          sbit rs = P3^5;
+   6          sbit rw = P3^6;
+   7          sbit en = P3^7;
+   8          
+   9          sbit r0 = P1^0;
+  10          sbit r1 = P1^1;
+  11          sbit r2 = P1^2;
+  12          sbit r3 = P1^3;
+  13          sbit c0 = P1^4;
+  14          sbit c1 = P1^5;
+  15          sbit c2 = P1^6;
+  16          sbit c3 = P1^7;
+  17          
+  18          char s1[] = "Enter 1st no ";
+  19          char s2[] = "Enter operator ";
+  20          char s3[] = "Enter 2nd no ";
+  21          
+  22          void delay(unsigned long count);
+  23          void lcd_data(unsigned char value);
+  24          void lcd_cmd(unsigned char command);
+  25          void setup_lcd();
+  26          char scan_key();
+  27          short int power(short int a,short int b);
+  28          void display(char* str);
+  29          void num_to_str(long int num);
+  30          void calculate_result(long int a,long int b,unsigned char c);
+  31          long get_num();
+  32           
+  33          
+  34          void main(){
+  35   1        while(1){
+  36   2        unsigned char op;
+  37   2        long int num1,num2;
+  38   2        setup_lcd();
+  39   2        display(s1);
+  40   2        lcd_cmd(0x01);
+  41   2        num1 = get_num();
+  42   2       
+  43   2        display(s2);
+  44   2        op = scan_key();
+  45   2        lcd_cmd(0x01);
+  46   2          
+  47   2        display(s3);
+  48   2        lcd_cmd(0x01);
+  49   2        num2 = get_num();
+  50   2       
+  51   2        calculate_result(num1,num2,op);
+  52   2        }
+  53   1      }
+  54          
+C51 COMPILER V9.60.0.0   MINI_CALCI                                                        10/23/2021 17:00:02 PAGE 2   
+
+  55          void delay(unsigned long count){
+  56   1        unsigned char i;
+  57   1        while(count){
+  58   2          i = 115;
+  59   2          while(i>0){
+  60   3            i--;
+  61   3          }
+  62   2          count--;
+  63   2        }
+  64   1      }
+  65          
+  66          
+  67          void lcd_cmd(unsigned char command){
+  68   1        delay(1000);
+  69   1        lcd_port = command;
+  70   1        rs = 0;
+  71   1        rw = 0;
+  72   1        en = 1;
+  73   1        delay(50);
+  74   1        en = 0;
+  75   1        delay(50);
+  76   1      }
+  77          
+  78          void lcd_data(unsigned char value){
+  79   1        lcd_port = value;
+  80   1        rs = 1;
+  81   1        rw = 0;
+  82   1        en = 1;
+  83   1        delay(50);
+  84   1        en = 0;
+  85   1        delay(50);
+  86   1      }
+  87          
+  88          void setup_lcd(){
+  89   1        delay(200);
+  90   1        lcd_cmd(0x30);
+  91   1        delay(200);
+  92   1        lcd_cmd(0x30);
+  93   1        delay(200);
+  94   1        lcd_cmd(0x38);
+  95   1        lcd_cmd(0x0F);
+  96   1        lcd_cmd(0x01);
+  97   1        lcd_cmd(0x06);
+  98   1        lcd_cmd(0x80);
+  99   1      }
+ 100          
+ 101          
+ 102          char scan_key(){
+ 103   1        unsigned char k;
+ 104   1        k = 'm';
+ 105   1        while(!(k== '0' || k == '1' || k== '2' || k=='3' || k=='4' || k=='5' || k== '6' || k=='7' || k=='8' || k=
+             -='9' || k=='/' || k=='*' || k=='+' || k=='-' || k=='c' || k == '='))
+ 106   1        {
+ 107   2          r0 = 0;r1=1;r2=1;r3 =1;
+ 108   2          if(r0 ==0 && c0 ==0){lcd_data('7');delay(500);return k= '7';}
+ 109   2          if(r0==0 && c1==0){ lcd_data('8'); delay(500); return k = '8';}
+ 110   2          if(r0==0 && c2 ==0){lcd_data('9'); delay(500); return k = '9';}
+ 111   2          if(r0==0 && c3 ==0){lcd_data('/');delay(500); return k = '/';}
+ 112   2          
+ 113   2          r0=1;r1=0;r2=1;r3=1;
+ 114   2          if(r1==0 && c0 ==0){lcd_data('4');delay(500);return k= '4';}
+ 115   2          if(r1==0 && c1==0){lcd_data('5'); delay(500);return k='5';}
+C51 COMPILER V9.60.0.0   MINI_CALCI                                                        10/23/2021 17:00:02 PAGE 3   
+
+ 116   2          if(r1==0 && c2 == 0){lcd_data('6');delay(500);return k='6';}
+ 117   2          if(r1==0 && c3 == 0){lcd_data('*');delay(500);return k='*';}
+ 118   2          
+ 119   2          r0=1;r1=1;r2=0;r3=1;
+ 120   2          if(r2==0 && c0==0){lcd_data('1');delay(500);return k='1';}
+ 121   2          if(r2==0 && c1 ==0){lcd_data('2');delay(500);return k='2';}
+ 122   2          if(r2==0 && c2==0){lcd_data('3');delay(500);return k='3';}
+ 123   2          if(r2==0 && c3==0){lcd_data('-');delay(500); return k='-';}
+ 124   2          
+ 125   2          r0=1;r1=1;r2=1;r3=0;
+ 126   2          if(r3==0 && c0==0){lcd_data('c');delay(500);return k='c';}
+ 127   2          if(r3==0 && c1==0){lcd_data('0');delay(500);return k='0';}
+ 128   2          if(r3==0 && c2==0){lcd_data('=');delay(500);return k='=';}
+ 129   2          if(r3==0 && c3==0){lcd_data('+');delay(500);return k='+';}
+ 130   2        }
+ 131   1          return 0;
+ 132   1      }
+ 133                
+ 134          void display(char *str){
+ 135   1        while(*str != '\0'){
+ 136   2          lcd_data(*str);
+ 137   2          str++;
+ 138   2        }
+ 139   1      }
+ 140          
+ 141          
+ 142          long get_num(){
+ 143   1        char key = scan_key();
+ 144   1        char arr[8];
+ 145   1        long sum=0 ;
+ 146   1        short i=0,k;
+ 147   1        while(!(key == '+' || key =='-' || key =='/' || key=='*' || key=='c' || key=='=' )){
+ 148   2          arr[i] = key;
+ 149   2          i++;
+ 150   2          key = scan_key();
+ 151   2          delay(30);
+ 152   2        }
+ 153   1        for(k=0;k<i;k++){
+ 154   2          sum+= (arr[i-k-1] - '0')*power(10,k);
+ 155   2        }
+ 156   1        lcd_cmd(0x01);
+ 157   1        return sum;
+ 158   1      }
+ 159           
+ 160          
+ 161          short int power(short int a,short int b){
+ 162   1        short int result = 1;
+ 163   1        short int count;
+ 164   1        for(count=0;count<b;count++){
+ 165   2          result *= a;
+ 166   2        }
+ 167   1        return result;
+ 168   1      }
+ 169           
+ 170          
+ 171          void num_to_str(long int real_num){
+ 172   1        long int num;
+ 173   1        char temp[15];
+ 174   1        char i=0,k;
+ 175   1        char var;
+ 176   1        if(real_num>=0){
+ 177   2          num = real_num;
+C51 COMPILER V9.60.0.0   MINI_CALCI                                                        10/23/2021 17:00:02 PAGE 4   
+
+ 178   2        }
+ 179   1        else{
+ 180   2          num = -1*real_num;
+ 181   2          lcd_data('-');
+ 182   2        }
+ 183   1        
+ 184   1        while(num>0){
+ 185   2            temp[i] = ((num%10) + '0');
+ 186   2            i++ ;
+ 187   2            num = num/10;
+ 188   2        }
+ 189   1        if(i==0){
+ 190   2          lcd_data('0');
+ 191   2          return;
+ 192   2        }
+ 193   1        temp[i] = '\0';
+ 194   1        for(k=0;k<i/2;k++){
+ 195   2          var = temp[k];
+ 196   2          temp[k] = temp[i-k-1];
+ 197   2          temp[i-k-1] = var;
+ 198   2        }
+ 199   1        display(temp);
+ 200   1      }
+ 201          
+ 202            
+ 203          void calculate_result(long int a,long int b,unsigned char c){
+ 204   1        long int result = 0,remain;
+ 205   1        switch(c){
+ 206   2          case '+':
+ 207   2          {
+ 208   3            result = a +b;
+ 209   3            break;
+ 210   3          }
+ 211   2          case '-':
+ 212   2          {
+ 213   3            result = a -b;
+ 214   3            break;
+ 215   3          }
+ 216   2          case '/':
+ 217   2          {
+ 218   3            result = a/b;
+ 219   3            remain = a%b;
+ 220   3            num_to_str(result);
+ 221   3            lcd_data(' ');
+ 222   3            num_to_str(remain);
+ 223   3            return;
+ 224   3            break;
+ 225   3          }
+ 226   2          case '*':
+ 227   2          {
+ 228   3            result = a*b;
+ 229   3            break;
+ 230   3          }
+ 231   2        }
+ 232   1         num_to_str(result);
+ 233   1         
+ 234   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1414    ----
+   CONSTANT SIZE    =   ----    ----
+C51 COMPILER V9.60.0.0   MINI_CALCI                                                        10/23/2021 17:00:02 PAGE 5   
+
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     44      74
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
