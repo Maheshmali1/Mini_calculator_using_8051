@@ -1,5 +1,5 @@
 # Mini_calculator_using_8051
-This project includes the basic 6 digit calculations of math, implemented using 8051 MCU and embedded C.
+This project includes the basic 5 digit calculations of math, implemented using 8051 MCU and embedded C.
 
 In this project I have implemented the basic math functions such add,substract, division and multiplication using Embedded C on 8051 MCU.
 
